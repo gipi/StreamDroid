@@ -53,7 +53,13 @@ public class StreamDroidActivity extends Activity {
 	 * Call the gallery in order to choose a video.
 	 */
 	public void addVideo(View view) {
-		Intent videoListIntent = new Intent(Intent.ACTION_GET_CONTENT);
+		/*
+		 * If we use ACTION_GET_CONTENT will open also the file manager that
+		 * return a path like /mimetype//mnt/sdcard/download/The.Big.Bang.Theory.S05E01.HDTV.XviD-ASAP.avi
+		 * that is not usable (is without ID). So to avoid unavoidable crash
+		 * we call only the gallery application.
+		 */
+		Intent videoListIntent = new Intent(Intent.ACTION_PICK);
 		videoListIntent.setType("video/*");
 		startActivityForResult(videoListIntent, 1);
 	}
@@ -61,10 +67,16 @@ public class StreamDroidActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// this returns a path like "/external/video/media/12"
+		//
+		// see this
+		//  http://stackoverflow.com/questions/7856959/android-file-chooser
+		// for
+		//  /mimetype//mnt/sdcard/download/The.Big.Bang.Theory.S05E01.HDTV.XviD-ASAP.avi
 		if ((requestCode == 1) && (resultCode == RESULT_OK) && (data != null)) {
 			android.util.Log.i(TAG, "---------------------" + data.getData().getEncodedPath());
 			// http://stackoverflow.com/questions/3874275/how-to-receive-multiple-gallery-results-in-onactivityresult
 			Uri selectedVideoUri = data.getData();
+			android.util.Log.i(TAG, "uri: " + data.getData());
 
 			Cursor c = managedQuery(
 				selectedVideoUri,
@@ -90,6 +102,9 @@ public class StreamDroidActivity extends Activity {
 	 *
 	 * This adapter augments with an item used by the gallery for
 	 * attach new video thumbnail.
+	 *
+	 * TODO: use the URI as item in the array so to use
+	 * more general content provider as well.
 	 */
 	public class ImageAdapter extends ArrayAdapter<Long> {
 		private Context mContext;
