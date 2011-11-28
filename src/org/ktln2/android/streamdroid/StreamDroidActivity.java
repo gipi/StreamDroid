@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
 import android.provider.MediaStore;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -50,16 +51,10 @@ public class StreamDroidActivity extends Activity {
 
 	// http://stackoverflow.com/questions/6995901/android-unable-to-invoke-gallery-with-video
 	/**
-	 * Call the gallery in order to choose a video.
+	 * Call the intents able to choose a video.
 	 */
 	public void addVideo(View view) {
-		/*
-		 * If we use ACTION_GET_CONTENT will open also the file manager that
-		 * return a path like /mimetype//mnt/sdcard/download/The.Big.Bang.Theory.S05E01.HDTV.XviD-ASAP.avi
-		 * that is not usable (is without ID). So to avoid unavoidable crash
-		 * we call only the gallery application.
-		 */
-		Intent videoListIntent = new Intent(Intent.ACTION_PICK);
+		Intent videoListIntent = new Intent(Intent.ACTION_GET_CONTENT);
 		videoListIntent.setType("video/*");
 		startActivityForResult(videoListIntent, 1);
 	}
@@ -78,56 +73,79 @@ public class StreamDroidActivity extends Activity {
 			Uri selectedVideoUri = data.getData();
 			android.util.Log.i(TAG, "uri: " + data.getData());
 
-			Cursor c = managedQuery(
-				selectedVideoUri,
-				null,
-				null,
-				null,
-				null);
-			int _idIndex =   c.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
-			int titleIndex = c.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
-
-			c.moveToFirst();
-
-			android.util.Log.i(TAG, "Title: " + c.getString(titleIndex));
-
-			String _ID = c.getString(_idIndex);
-			mAdapter.add(new Long(_ID));
+			mAdapter.add(selectedVideoUri);
 		}
 	}
 
 	/**
-	 * Adapter for an array containing id of video in order to
+	 * Adapter for an array containing uri of video in order to
 	 * show their thumbnails.
 	 *
 	 * This adapter augments with an item used by the gallery for
 	 * attach new video thumbnail.
-	 *
-	 * TODO: use the URI as item in the array so to use
-	 * more general content provider as well.
 	 */
-	public class ImageAdapter extends ArrayAdapter<Long> {
+	public class ImageAdapter extends ArrayAdapter<Uri> {
 		private Context mContext;
 
 		public ImageAdapter(Context c) {
-			super(c, 0, new ArrayList<Long>());
+			super(c, 0, new ArrayList<Uri>());
 
 			mContext = c;
 		}
 
 		/**
-		 * Retrieves the thumbnail for the video identified by the id passed
+		 * Retrieves the thumbnail for the video identified by the Uri passed
 		 * as argument.
+		 *
+		 * I don't know which properties can have a item returned from an intent
+		 * that handles videos, with content://org.openintents.cmfilemanager/ exists
+		 * the "DATA" column with the path of the resource with which build the thumbnail.
 		 *
 		 * The thumbnail's type is MINI_KIND.
 		 */
-		private Bitmap getVideoThumbnail(long id) {
-			return MediaStore.Video.Thumbnails.getThumbnail(
-						getContentResolver(),
-						id,
-						MediaStore.Video.Thumbnails.MINI_KIND,
-						null
-					);
+		private Bitmap getVideoThumbnail(Uri uri) {
+			Bitmap thumbnail = null;
+			Cursor c = managedQuery(
+				uri,
+				null,
+				null,
+				null,
+				null);
+
+			if (!( c != null && c.moveToFirst())){
+				return thumbnail;
+			}
+
+			try {
+				int titleIndex = c.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
+				android.util.Log.i(TAG, "Title: " + c.getString(titleIndex));
+
+				int _idIndex =   c.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
+				String _ID = c.getString(_idIndex);
+
+				thumbnail = MediaStore.Video.Thumbnails.getThumbnail(
+							getContentResolver(),
+							new Long(_ID),
+							MediaStore.Video.Thumbnails.MINI_KIND,
+							null
+						);
+			} catch (java.lang.IllegalArgumentException e) {
+				int dataIndex = c.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+				String data = c.getString(dataIndex);
+
+				android.util.Log.i(TAG, "Data: " + c.getString(dataIndex));
+
+				// May return null if the video is corrupt or the format is not supported.
+				thumbnail = ThumbnailUtils.createVideoThumbnail(data, MediaStore.Video.Thumbnails.MINI_KIND);
+
+				if (thumbnail == null) {
+					android.util.Log.i(TAG, "thumbnail not created");
+					// TODO: create a default image
+				}
+
+			}
+
+			return thumbnail;
 		}
 
 		/**
@@ -144,7 +162,6 @@ public class StreamDroidActivity extends Activity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final ImageView imageView = new ImageView(mContext);
 
-			//imageView.setImageResource(mImageIds[position]);
 			imageView.setTag(position);
 
 			imageView.setLayoutParams(new Gallery.LayoutParams(250, 200));
