@@ -20,6 +20,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import java.util.ArrayList;
 import java.util.List;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.Menu;
 
 
 public class StreamDroidActivity extends Activity {
@@ -70,6 +73,24 @@ public class StreamDroidActivity extends Activity {
 		Intent videoListIntent = new Intent(Intent.ACTION_GET_CONTENT);
 		videoListIntent.setType("video/*");
 		startActivityForResult(videoListIntent, 1);
+	}
+
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+			case R.id.concatena:
+				printArray(mAdapter.getPaths());
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -156,6 +177,15 @@ public class StreamDroidActivity extends Activity {
 			}
 
 			return thumbnail;
+		}
+
+		public String[] getPaths() {
+			String[] paths = new String[mPaths.size()];
+			for (int idx = 0 ; idx < mPaths.size() ; idx++) {
+				paths[idx] = mPaths.get(idx);
+			}
+
+			return paths;
 		}
 
 		/**
