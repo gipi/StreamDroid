@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class StreamDroidActivity extends Activity {
@@ -95,9 +96,14 @@ public class StreamDroidActivity extends Activity {
 	 *
 	 * This adapter augments with an item used by the gallery for
 	 * attach new video thumbnail.
+	 *
+	 * For implementational problems we create various List which
+	 * maintain the properties for each items (like thumbnails)
+	 * and augment it with the add() method.
 	 */
 	public class ImageAdapter extends ArrayAdapter<Uri> {
 		private Context mContext;
+		private List<Bitmap> mThumbnails = new ArrayList();
 
 		public ImageAdapter(Context c) {
 			super(c, 0, new ArrayList<Uri>());
@@ -171,6 +177,16 @@ public class StreamDroidActivity extends Activity {
 			return n + 1;
 		}
 
+		@Override
+		public void add(Uri uri) {
+			// so to avoid + 1
+			int n = super.getCount();
+
+			mThumbnails.add(n, getVideoThumbnail(uri));
+
+			super.add(uri);
+		}
+
 		public View getView(int position, View convertView, ViewGroup parent) {
 			final ImageView imageView = new ImageView(mContext);
 
@@ -181,7 +197,7 @@ public class StreamDroidActivity extends Activity {
 			if (position == (getCount() - 1)) {
 				imageView.setImageResource(R.drawable.ic_add);
 			} else {
-				imageView.setImageBitmap(getVideoThumbnail(getItem(position)));
+				imageView.setImageBitmap(mThumbnails.get(position));
 			}
 
 			return imageView;
