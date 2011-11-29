@@ -103,6 +103,7 @@ public class StreamDroidActivity extends Activity {
 	 */
 	public class ImageAdapter extends ArrayAdapter<Uri> {
 		private Context mContext;
+		private List<String> mPaths = new ArrayList();
 		private List<Bitmap> mThumbnails = new ArrayList();
 
 		public ImageAdapter(Context c) {
@@ -186,6 +187,11 @@ public class StreamDroidActivity extends Activity {
 
 			mThumbnails.add(n, getVideoThumbnail(c, uri));
 
+			// TODO: this is duplicated into getVideoThumbnail()
+			int dataIndex = c.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+			String data = c.getString(dataIndex);
+
+			mPaths.add(n, data);
 			super.add(uri);
 		}
 
