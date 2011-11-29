@@ -121,18 +121,9 @@ public class StreamDroidActivity extends Activity {
 		 *
 		 * The thumbnail's type is MINI_KIND.
 		 */
-		private Bitmap getVideoThumbnail(Uri uri) {
+		private Bitmap getVideoThumbnail(Cursor c, Uri uri) {
 			Bitmap thumbnail = null;
-			Cursor c = managedQuery(
-				uri,
-				null,
-				null,
-				null,
-				null);
 
-			if (!( c != null && c.moveToFirst())){
-				return thumbnail;
-			}
 
 			try {
 				int titleIndex = c.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
@@ -182,7 +173,18 @@ public class StreamDroidActivity extends Activity {
 			// so to avoid + 1
 			int n = super.getCount();
 
-			mThumbnails.add(n, getVideoThumbnail(uri));
+			Cursor c = managedQuery(
+				uri,
+				null,
+				null,
+				null,
+				null);
+
+			if (!( c != null && c.moveToFirst())){
+				return;
+			}
+
+			mThumbnails.add(n, getVideoThumbnail(c, uri));
 
 			super.add(uri);
 		}
