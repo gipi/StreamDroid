@@ -16,7 +16,11 @@
  */
 #include <string.h>
 #include <jni.h>
+#include <android/log.h>
 
+/**
+ * DONT Use _ in method names.
+ */
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
  * file located at:
@@ -28,4 +32,28 @@ Java_org_ktln2_android_streamdroid_StreamDroidActivity_concatenate( JNIEnv* env,
                                                   jobject thiz )
 {
     return (*env)->NewStringUTF(env, "Hello from JNI !");
+}
+
+// http://java.sun.com/docs/books/jni/html/objtypes.html#4013
+// http://docs.oracle.com/javase/1.3/docs/guide/jni/spec/types.doc.html
+jstring Java_org_ktln2_android_streamdroid_StreamDroidActivity_concatenateBis( JNIEnv* env, jobject thiz, jstring myString)
+{
+	return myString;
+}
+
+jint Java_org_ktln2_android_streamdroid_StreamDroidActivity_printArray   (JNIEnv* env, jobject thiz, jobjectArray videoNames) {
+	const char* videoURI[2];
+	jsize n = (*env)->GetArrayLength(env, videoNames);
+	int cycle;
+	for (cycle = 0 ; cycle < n ; cycle++) {
+		// no casting to jstring needed?
+		jobject string = (*env)->GetObjectArrayElement(env, videoNames, cycle);
+	
+		videoURI[cycle] = (*env)->GetStringUTFChars(env, string, 0);
+		__android_log_print(ANDROID_LOG_DEBUG, "NDK", "NDK:LC: [%s]", videoURI[cycle]);
+	}
+
+	// TODO: release videoURI[] elements
+
+	return 0;
 }

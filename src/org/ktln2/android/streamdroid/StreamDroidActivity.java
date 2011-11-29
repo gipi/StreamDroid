@@ -27,6 +27,8 @@ public class StreamDroidActivity extends Activity {
 	private ImageAdapter mAdapter;
 
 	public native String concatenate();
+	public native String concatenateBis(String myString);
+	public native int printArray(String[] myString);
 
 	static {
 		System.loadLibrary("concatenate");
@@ -55,6 +57,8 @@ public class StreamDroidActivity extends Activity {
 		});
 
 		android.util.Log.i(TAG, "from jni: " + concatenate());
+		android.util.Log.i(TAG, "from jni: " + concatenateBis("miao"));
+		android.util.Log.i(TAG, "from jni: " + printArray(new String[] {"miao", "bau"}));
 	}
 
 	// http://stackoverflow.com/questions/6995901/android-unable-to-invoke-gallery-with-video

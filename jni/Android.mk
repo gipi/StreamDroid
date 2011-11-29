@@ -18,5 +18,6 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := concatenate
 LOCAL_SRC_FILES := concatenate.c
+LOCAL_LDLIBS := -llog
 
 include $(BUILD_SHARED_LIBRARY)
