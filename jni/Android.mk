@@ -18,6 +18,9 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := concatenate
 LOCAL_SRC_FILES := concatenate.c
+LOCAL_SHARED_LIBRARY = -lgstreamer-0.10
 LOCAL_LDLIBS := -llog
 
 include $(BUILD_SHARED_LIBRARY)
+
+include /opt/gstreamer_ndk_bundle/jni/Android.mk
