@@ -54,6 +54,7 @@ jint Java_org_ktln2_android_streamdroid_StreamDroidActivity_printArray   (JNIEnv
 	}
 
 	// TODO: release videoURI[] elements
+	compose(n, videoURI);
 
 	return 0;
 }

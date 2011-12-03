@@ -35,6 +35,12 @@ public class StreamDroidActivity extends Activity {
 	public native int printArray(String[] myString);
 
 	static {
+		// the order matters
+		System.loadLibrary("glib-2.0");
+		System.loadLibrary("gthread-2.0");
+		System.loadLibrary("gobject-2.0");
+		System.loadLibrary("gmodule-2.0");
+		System.loadLibrary("gstreamer-0.10");
 		System.loadLibrary("concatenate");
 	}
 
