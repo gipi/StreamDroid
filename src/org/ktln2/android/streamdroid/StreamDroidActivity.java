@@ -59,10 +59,6 @@ public class StreamDroidActivity extends Activity {
 				}
 			}
 		});
-
-		android.util.Log.i(TAG, "from jni: " + concatenate());
-		android.util.Log.i(TAG, "from jni: " + concatenateBis("miao"));
-		android.util.Log.i(TAG, "from jni: " + printArray(new String[] {"miao", "bau"}));
 	}
 
 	// http://stackoverflow.com/questions/6995901/android-unable-to-invoke-gallery-with-video
